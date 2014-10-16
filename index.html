@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+
+<head>
+</head>
+
+<body>
+<div>
+  <input type="text" id="stdURL" value="http://www.udacity.com" onkeypress="searchKeyPress(event);" />
+    <input type="button" id="btn" Value="Score" onclick="runTests();" />
+    <script>
+    function searchKeyPress(e)
+    {
+      // look for window.event in case event isn't passed in
+      if (typeof e == 'undefined' && window.event) { e = window.event; }
+      if (e.keyCode == 13)
+      {
+        document.getElementById('btn').click();
+      }
+    }
+    </script>
+</div>
+<div>
+  <div id="PSI"></div>
+  <div id="framerate"></div>
+  <script>
+// TODO: framerate test
+
+// open new browser window
+// load pizza site
+// pizza site posts data to localhost cookie
+// localhost displays it oncookiechange event (if possible)
+
+
+// create an event listener for a storage event on a localStorage attribute
+
+
+
+var psiDiv = document.querySelector("#PSI");
+var framerateDiv = document.querySelector("#framerate");
+
+function getStudentURL() {
+  var studentURL = document.querySelector('#stdURL').value;    // should be moved
+  console.log("Running PS Insights Test against: " + studentURL);
+  return studentURL;
+}
+
+// Helper function that sorts results in order of impact.
+function sortByImpact(a, b) { return b.impact - a.impact; }
+
+// Our JSONP callback. Checks for errors, then invokes our callback handlers.
+function runPagespeedCallbacksDesktop(result) {
+  var callbacks = {}
+
+  callbacks.clearScreen = function() {
+    if (psiDiv.innerHTML === "Querying the PageSpeed API...") psiDiv.innerHTML = "";
+  }
+
+  callbacks.displayScore = function(result, strategy) {
+    var score = result.score;
+    var div = document.createElement("div");
+    div.innerHTML = strategy + " Score: " + score;
+    psiDiv.insertBefore(div, null);
+  }
+
+  callbacks.displayTopPageSpeedSuggestions = function(result) {
+    // console.log(result);
+    var results = [];
+    var ruleResults = result.formattedResults.ruleResults;
+
+    for (var i in ruleResults) {
+      var ruleResult = ruleResults[i];
+      // Don't display lower-impact suggestions.
+      if (ruleResult.ruleImpact < 3.0) continue;
+      results.push({name: ruleResult.localizedRuleName,
+                    impact: ruleResult.ruleImpact,
+                    // url: ruleResult.urlBlocks[0].header.args[0].value
+                  });
+    }
+    results.sort(sortByImpact);
+    var ul = document.createElement('ul');
+    for (var i = 0, len = results.length; i < len; ++i) {
+      var r = document.createElement('li');
+      // var a = document.createElement('a');
+      // a.href = results[i].url;
+      // a.innerHTML = results[i].name;
+      // r.appendChild(a);
+      r.innerHTML = results[i].name;
+      ul.insertBefore(r, null);
+    }
+    if (ul.hasChildNodes()) {
+      // document.body.insertBefore(ul, null);
+      psiDiv.appendChild(ul, null);
+    } else {
+      var div = document.createElement('div');
+      div.innerHTML = 'No high impact suggestions. Good job!';
+      // document.body.insertBefore(div, null);
+      psiDiv.appendChild(div, null);
+    }
+  };
+
+  var strategy = "Desktop";
+  var apiKey = "AIzaSyAHehZ3CRwWG3cpCGF3WRTLdWxD0XXDdaI";
+  if (result.error) {
+    var errors = result.error.errors;
+    for (var i = 0, len = errors.length; i < len; ++i) {
+      if (errors[i].reason == 'badRequest' && apiKey == 'yourAPIKey') {
+        alert('Please specify your Google API key in the apiKey variable.');
+      } else {
+        psiDiv.text = "Could not execute PageSpeed Insights Test. See below.\n" + errors[i].message;
+      }
+    }
+    psiDiv.text = errors;
+    return;
+  }
+
+  // Dispatch to each function on the callbacks object.
+  for (var fn in callbacks) {
+    var f = callbacks[fn];
+    if (typeof f == 'function') {
+      callbacks[fn](result, strategy);
+    }
+  }
+}
+
+function runPagespeedCallbacksMobile(result) {
+  var callbacks = {}
+
+  callbacks.clearScreen = function() {
+    if (psiDiv.innerHTML === "Querying the PageSpeed API...") psiDiv.innerHTML = "";
+  }
+
+  callbacks.displayScore = function(result, strategy) {
+    var score = result.score;
+    var div = document.createElement("div");
+    div.innerHTML = strategy + " Score: " + score;
+    psiDiv.insertBefore(div, null);
+  }
+
+  callbacks.displayTopPageSpeedSuggestions = function(result) {
+    // console.log(result);
+    var results = [];
+    var ruleResults = result.formattedResults.ruleResults;
+
+    for (var i in ruleResults) {
+      var ruleResult = ruleResults[i];
+      // Don't display lower-impact suggestions.
+      if (ruleResult.ruleImpact < 3.0) continue;
+      results.push({name: ruleResult.localizedRuleName,
+                    impact: ruleResult.ruleImpact,
+                    // url: ruleResult.urlBlocks[0].header.args[0].value
+                  });
+    }
+    results.sort(sortByImpact);
+    var ul = document.createElement('ul');
+    for (var i = 0, len = results.length; i < len; ++i) {
+      var r = document.createElement('li');
+      // var a = document.createElement('a');
+      // a.href = results[i].url;
+      // a.innerHTML = results[i].name;
+      // r.appendChild(a);
+      r.innerHTML = results[i].name;
+      ul.insertBefore(r, null);
+    }
+    if (ul.hasChildNodes()) {
+      // document.body.insertBefore(ul, null);
+      psiDiv.appendChild(ul, null);
+    } else {
+      var div = document.createElement('div');
+      div.innerHTML = 'No high impact suggestions. Good job!';
+      // document.body.insertBefore(div, null);
+      psiDiv.appendChild(div, null);
+    }
+  };
+
+  var strategy = "Mobile";
+  var apiKey = "AIzaSyAHehZ3CRwWG3cpCGF3WRTLdWxD0XXDdaI";
+  if (result.error) {
+    var errors = result.error.errors;
+    for (var i = 0, len = errors.length; i < len; ++i) {
+      if (errors[i].reason == 'badRequest' && apiKey == 'yourAPIKey') {
+        alert('Please specify your Google API key in the apiKey variable.');
+      } else {
+        psiDiv.text = "Could not execute PageSpeed Insights Test. See below.\n" + errors[i].message;
+      }
+    }
+    psiDiv.text = errors;
+    return;
+  }
+
+  // Dispatch to each function on the callbacks object.
+  for (var fn in callbacks) {
+    var f = callbacks[fn];
+    if (typeof f == 'function') {
+      callbacks[fn](result, strategy);
+    }
+  }
+}
+
+// Invokes the PageSpeed Insights API. The response will contain
+// JavaScript that invokes our callback with the PageSpeed results.
+// type is a string of either "mobile" or "desktop", indicating strategy
+function runPagespeed(strategy, url) {
+  var apiKey = "AIzaSyAHehZ3CRwWG3cpCGF3WRTLdWxD0XXDdaI";  //identified as localhost
+  var psiURL = 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?';
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  var query = [
+    'url=' + url,
+    'callback=runPagespeedCallbacks' + strategy,
+    'key=' + apiKey,
+    'strategy=' + strategy,    // TODO: needs a mobile call too!
+  ].join('&');
+  s.src = psiURL + query;
+  document.head.insertBefore(s, null);
+}
+
+
+function runTests() {
+  var strategies = ["Desktop", "Mobile"];
+  var waitingText = "Querying the PageSpeed API...";
+  psiDiv.innerHTML = waitingText;
+  var url = getStudentURL();
+  
+  // refers to mobile and desktop
+  for (s in strategies) {
+    currentStrategy = strategies[s];
+    runPagespeed(currentStrategy, url);
+  }
+}
+  </script>
+</div>
+</body>
